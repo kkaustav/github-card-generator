@@ -27,14 +27,14 @@ graph TD
     end
     
     MCPServer -->|REST API| GitHubAPI[(GitHub REST API)]
-    MCPServer -->|Generative AI| GeminiAPI[(Gemini 2.5 Flash API)]
+    MCPServer -->|Application Default Credentials| VertexAI[(Google Cloud Vertex AI)]
     
     classDef gcp fill:#e8f0fe,stroke:#4285f4,stroke-width:2px,color:#1967d2
     classDef container fill:#fce8e6,stroke:#ea4335,stroke-width:2px,color:#a50e0e
     classDef external fill:#f6f8fa,stroke:#24292f,stroke-width:2px,color:#24292f
     
-    class Frontend,Backend,Agent,MCPServer gcp
-    class GitHubAPI,GeminiAPI external
+    class Frontend,Backend,Agent,MCPServer,VertexAI gcp
+    class GitHubAPI external
 ```
 
 ### Core Components:
@@ -43,7 +43,7 @@ graph TD
 3.  **ADK Agent**: Orchestrates the tool calls using the Google Agentic Development Kit.
 4.  **MCP Server**: Implements the Model Context Protocol tools to:
     *   Fetch rich data (repos, languages, stats) via the GitHub API.
-    *   Analyze the profile using the Gemini 2.5 Flash API to extract insights.
+    *   Analyze the profile using Google Cloud Vertex AI (Gemini 2.5 Flash) to extract insights.
     *   Generate the final HTML card with a premium, compact design.
 
 ## 💻 Local Development Workflow
@@ -66,5 +66,5 @@ If you want to modify the code and test it locally on your Mac:
 *   **Scaling**: Configured to scale down to `0` instances when not in use (costing $0) and up to a maximum of `5` instances under load.
 *   **Docker Registry**: Images are stored in Google Artifact Registry (`us-central1-docker.pkg.dev`).
 *   **APIs**:
-    *   **Gemini**: Uses a paid-tier API key bound to the GCP Trial Billing Account to avoid free-tier quota limits (20 req/day).
+    *   **Vertex AI**: Bypasses AI Studio API keys completely. Cloud Run uses Application Default Credentials (ADC) to securely authenticate with GCP Vertex AI, eliminating 20/day quotas and billing seamlessly to the GCP project.
     *   **GitHub**: Uses a Personal Access Token to avoid unauthenticated API rate limits.
