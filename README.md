@@ -22,6 +22,7 @@ graph TD
         
         subgraph Backend Container
             Backend[FastAPI App] -->|Instantiates| Agent[Google ADK Agent]
+            Backend -->|Session State| MemoryBank[(Vertex AI Memory Bank)]
             Agent -->|Stdio MCP| MCPServer[MCP Tool Server]
         end
     end
@@ -33,7 +34,7 @@ graph TD
     classDef container fill:#fce8e6,stroke:#ea4335,stroke-width:2px,color:#a50e0e
     classDef external fill:#f6f8fa,stroke:#24292f,stroke-width:2px,color:#24292f
     
-    class Frontend,Backend,Agent,MCPServer,VertexAI gcp
+    class Frontend,Backend,Agent,MCPServer,VertexAI,MemoryBank gcp
     class GitHubAPI external
 ```
 
