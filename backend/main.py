@@ -9,8 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from pydantic import BaseModel
 from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from google.adk.memory import InMemoryMemoryService
+from google.adk.sessions import VertexAiSessionService
+from google.adk.memory import VertexAiMemoryBankService
 from google.genai import types
 from agent import github_card_agent
 
@@ -18,8 +18,8 @@ app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # Services
-session_service = InMemorySessionService()
-memory_service = InMemoryMemoryService()
+session_service = VertexAiSessionService()
+memory_service = VertexAiMemoryBankService()
 
 runner = Runner(
     app_name="github-card-generator",

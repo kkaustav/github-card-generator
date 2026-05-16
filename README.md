@@ -46,6 +46,10 @@ graph TD
     *   Analyze the profile using Google Cloud Vertex AI (Gemini 2.5 Flash) to extract insights.
     *   Generate the final HTML card with a premium, compact design.
 
+### 🎁 Bonus Feature: Vertex AI Memory Bank
+This project implements the **Vertex AI Memory Bank** upgrade.
+We replaced the default `InMemorySessionService` with `VertexAiSessionService` and `VertexAiMemoryBankService` in `main.py`. This ensures that session state and user preferences are persistently backed by Google Cloud's enterprise-grade infrastructure instead of volatile in-memory storage, allowing the agent to continuously learn and recall insights across different generating sessions.
+
 ## 💻 Local Development Workflow
 
 If you want to modify the code and test it locally on your Mac:
