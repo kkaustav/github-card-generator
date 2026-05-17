@@ -22,7 +22,7 @@ session_service = VertexAiSessionService()
 memory_service = InMemoryMemoryService()
 
 runner = Runner(
-    app_name="github-card-generator",
+    app_name="5184413378998697984",
     agent=github_card_agent,
     session_service=session_service,
     memory_service=memory_service,
@@ -46,7 +46,7 @@ async def generate_card(req: GenerateRequest):
             return {"card_url": f"/card/{req.username}", "message": "Card loaded from cache."}
 
         session = await session_service.create_session(
-            app_name="github-card-generator", user_id=req.username
+            app_name="5184413378998697984", user_id=req.username
         )
         content = types.Content(role="user", parts=[types.Part(text=f"Generate a dev card for {req.username}")])
         final_response = ""
