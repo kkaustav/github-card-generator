@@ -77,7 +77,7 @@ async def scrape_github(username: str) -> dict:
         "account_age":   account_age,
         "top_repos":     top_repos,
         "languages":     languages,
-        "avatar_url":    f"https://github.com/{username}.png",
+        "avatar_url":    profile.get("avatar_url", f"https://github.com/{username}.png"),
         "profile_url":   f"https://github.com/{username}",
     }
 
@@ -183,7 +183,7 @@ li b{{color:#f0f6fc;font-weight:600}}
 .watermark{{font-size:.65rem;color:{muted}}}
 </style></head><body><div class="card">
   <div class="top">
-    <img class="avatar" src="https://github.com/{username}.png" alt="{username}"/>
+    <img class="avatar" src="{github_data.get('avatar_url', f'https://github.com/{username}.png')}" crossorigin="anonymous" alt="{username}"/>
     <div>
       <div class="name">{name}</div>
       <div class="handle">@{username}</div>

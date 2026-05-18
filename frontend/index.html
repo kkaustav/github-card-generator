@@ -7,6 +7,8 @@
   <meta name="description" content="Generate a beautiful AI-powered GitHub developer card from any public username." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --bg: #0d1117; --surface: #161b22; --surface2: #1c2128;
@@ -104,6 +106,43 @@
     .action-btn:active { transform: scale(.96); }
     .action-btn.copied { border-color: var(--green); color: var(--green); }
 
+    /* ── Dropdown ── */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background-color: var(--surface2);
+      min-width: 110px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      z-index: 10;
+      overflow: hidden;
+    }
+    .dropdown.active .dropdown-content {
+      display: block;
+      animation: fadeUp 0.15s ease;
+    }
+    .dropdown-item {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text1);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .dropdown-item:hover {
+      background-color: var(--surface);
+    }
+
     /* ── Spinner inside button ── */
     .spinner {
       display: inline-block; width: 14px; height: 14px;
@@ -156,7 +195,12 @@
           throw new Error(err.detail || `HTTP ${res.status}`);
         }
         const data = await res.json();
-        renderCard(data.card_url, username);
+        
+        const fullUrl = `${API_BASE}${data.card_url}`;
+        const htmlRes = await fetch(fullUrl);
+        const cardHtml = await htmlRes.text();
+        
+        renderCard(cardHtml, fullUrl, username);
         setStatus("", "");
       } catch (err) {
         setStatus(`Error: ${err.message}`, "error");
@@ -187,26 +231,83 @@
         </div>`;
     }
 
-    function renderCard(cardUrl, username) {
-      const fullUrl = `${API_BASE}${cardUrl}`;
+    function renderCard(cardHtml, fullUrl, username) {
       document.getElementById("card-container").innerHTML = `
         <div class="card-frame-wrap">
-          <iframe id="card-iframe" src="${fullUrl}"
+          <iframe id="card-iframe"
             title="Dev card for ${username}"
             onload="resizeIframe(this)">
           </iframe>
         </div>
         <div class="action-bar">
           <button class="action-btn" id="copy-btn" onclick="copyLink('${fullUrl}')">
-            📋 Copy Card Link
+            📋 Copy Link
           </button>
           <a class="action-btn" id="open-btn" href="${fullUrl}" target="_blank" rel="noopener">
-            🔗 Open in New Tab
+            🔗 Open Tab
           </a>
           <button class="action-btn" id="regen-btn" onclick="handleSubmit(null, true)">
-            🔄 Regenerate
+            🔄 Regen
           </button>
+          <div class="dropdown" id="download-dropdown">
+            <button class="action-btn" onclick="toggleDropdown()">
+              ⬇️ Download
+            </button>
+            <div class="dropdown-content">
+              <div class="dropdown-item" onclick="downloadCard('png', '${username}', this)">🖼️ PNG</div>
+              <div class="dropdown-item" onclick="downloadCard('jpg', '${username}', this)">🖼️ JPG</div>
+              <div class="dropdown-item" onclick="downloadCard('pdf', '${username}', this)">📄 PDF</div>
+            </div>
+          </div>
         </div>`;
+        
+      document.getElementById("card-iframe").srcdoc = cardHtml;
+    }
+
+    async function downloadCard(format, username, btn) {
+      const iframe = document.getElementById("card-iframe");
+      if (!iframe) return;
+      
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span class="spinner"></span>...`;
+      btn.disabled = true;
+
+      try {
+        const cardElement = iframe.contentWindow.document.querySelector('.card');
+        if (!cardElement) throw new Error("Card element not found inside iframe");
+
+        const canvas = await html2canvas(cardElement, {
+          useCORS: true,
+          backgroundColor: format === 'jpg' ? '#080c14' : null,
+          scale: 2
+        });
+
+        if (format === 'pdf') {
+          const { jsPDF } = window.jspdf;
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF({
+            orientation: canvas.width > canvas.height ? 'l' : 'p',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+          });
+          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+          pdf.save(`${username}-github-card.pdf`);
+        } else {
+          const type = format === 'jpg' ? 'image/jpeg' : 'image/png';
+          const imgData = canvas.toDataURL(type, 1.0);
+          
+          const link = document.createElement('a');
+          link.download = `${username}-github-card.${format}`;
+          link.href = imgData;
+          link.click();
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Failed to download: " + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
     }
 
     function resizeIframe(iframe) {
@@ -228,6 +329,19 @@
         }, 2000);
       } catch (_) {
         btn.textContent = "❌ Copy failed";
+      }
+    }
+
+    function toggleDropdown() {
+      document.getElementById('download-dropdown').classList.toggle('active');
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.closest('.dropdown')) {
+        const dropdown = document.getElementById('download-dropdown');
+        if (dropdown && dropdown.classList.contains('active')) {
+          dropdown.classList.remove('active');
+        }
       }
     }
   </script>

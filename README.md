@@ -39,7 +39,7 @@ graph TD
 ```
 
 ### Core Components:
-1.  **Frontend Service**: A static HTML/JS UI deployed via Docker (NGINX) to Cloud Run. It directly calls the backend Cloud Run service.
+1.  **Frontend Service**: A static HTML/JS UI deployed via Docker (NGINX) to Cloud Run. It directly calls the backend Cloud Run service and allows users to seamlessly download their generated cards as high-quality JPG, PNG, or PDF files.
 2.  **Backend Service**: A FastAPI Python application deployed to Cloud Run.
 3.  **ADK Agent**: Orchestrates the tool calls using the Google Agentic Development Kit.
 4.  **MCP Server**: Implements the Model Context Protocol tools to:
