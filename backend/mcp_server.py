@@ -205,7 +205,7 @@ li b{{color:#f0f6fc;font-weight:600}}
   {f'<div class="fun">💡 {fun}</div>' if fun else ''}
   {f'<div class="info">{info_line}</div>' if info_line else ''}
   <div class="footer">
-    <a class="gh-link" href="https://github.com/{username}" target="_blank">🔗 GitHub Profile Link</a>
+    <a class="gh-link" href="https://github.com/{username}" target="_blank">🔗 github.com/{username}</a>
     <span class="watermark">Dev Card Generator</span>
   </div>
 </div></body></html>"""
