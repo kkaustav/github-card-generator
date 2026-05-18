@@ -292,19 +292,8 @@
           });
           pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
 
-          // Add clickable links
-          const links = cardElement.querySelectorAll('a[href]');
-          const cardRect = cardElement.getBoundingClientRect();
-          const scale = canvas.width / cardRect.width;
-          
-          links.forEach(linkEl => {
-            const linkRect = linkEl.getBoundingClientRect();
-            const x = (linkRect.left - cardRect.left) * scale;
-            const y = (linkRect.top - cardRect.top) * scale;
-            const w = linkRect.width * scale;
-            const h = linkRect.height * scale;
-            pdf.link(x, y, w, h, { url: linkEl.href });
-          });
+          // Make the entire PDF clickable, linking to the user's GitHub profile
+          pdf.link(0, 0, canvas.width, canvas.height, { url: `https://github.com/${username}` });
 
           pdf.save(`${username}-github-card.pdf`);
         } else {
